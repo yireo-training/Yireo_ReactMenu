@@ -24,16 +24,19 @@ $menuData = getDataFromNode($block->getMenu());
 ?>
 
 <nav class="navigation" data-action="navigation">
-    <ul data-mage-init='{"reactMenu":{"data": <?php echo json_encode($menuData) ?>}}'>
+    <ul>
         <?= /* @escapeNotVerified */ $_menu ?>
         <?= /* @escapeNotVerified */ $block->getChildHtml() ?>
     </ul>
 </nav>
 
 <script>
-    require([], function() {
-
+    require(['domReady', 'jquery', 'react', 'reactDom', 'reactMenuComponent'], function (domReady, $, React, ReactDOM, ReactMenuComponent) {
+        domReady(function () {
+            var data = <?php echo json_encode($menuData) ?>;
+            var domElement = $('nav.navigation ul')[0];
+            var reactElement = React.createElement(ReactMenuComponent.default, data);
+            return ReactDOM.render(reactElement, domElement);
+        });
     });
 </script>
-
-
