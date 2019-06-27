@@ -6,7 +6,10 @@ const sourcemaps = require('gulp-sourcemaps');
 var jsFiles = {
     vendor: [],
     source: [
-        "react_source/**/*.js"
+        "react_source/*.js",
+        "react_source/**/*.js",
+        "react_source/**/**/*.js",
+        "react_source/**/**/**/*.js"
     ]
 };
 
