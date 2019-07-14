@@ -17,16 +17,16 @@ class MenuItem extends React.Component {
     onMouseClick() {
         event.preventDefault();
 
-        // @todo: Use https://github.com/JedWatson/react-tappable for tablets
-
-        let hasChildren = !!this.props.node.children.length;
-        let isExpanded = !!this.state.expanded;
-
-        if (isExpanded || hasChildren) {
+        let isExpanded = this.state.expanded;
+        if (isExpanded && this.hasChildren()) {
             return window.location.href = this.props.node.url;
         }
 
-        this.setState({expanded: true});
+        if (!this.hasChildren()) {
+            return window.location.href = this.props.node.url;
+        }
+
+        this.setState((state) => {return {expanded: !state.expanded}; });
     }
 
     getClassNames() {
@@ -37,14 +37,18 @@ class MenuItem extends React.Component {
         classNames.push(levelClass);
         classNames.push(node.position_class);
         classNames.push(node.class);
-        classNames.push('category-item');// @todo
-        classNames.push('parent');// @todo
+        classNames.push('category-item');// @todo: Is this ever different?
         // @todo: Implement classname "first"
-        classNames.push('ui-menu-item'); // @todo
+        classNames.push('ui-menu-item'); // @todo: Why is this needed?
+        if (this.hasChildren()) classNames.push('parent');
         if (node.is_active) classNames.push('active');
         if (node.has_active) classNames.push('has-active');
 
         return classNames;
+    }
+
+    hasChildren() {
+        return !!(this.props.node.children.length > 0);
     }
 
     render() {
@@ -56,15 +60,13 @@ class MenuItem extends React.Component {
             submenuStyle = {display: 'block'};
         }
 
-        let ariaHasPopup = !!(node.children.length > 0);
-
         return (
             <li className={classNames.join(' ')} role="presentation" onMouseLeave={this.onMouseLeave.bind(this)} onMouseOver={this.onMouseOver.bind(this)}>
-                <a href="#" onClick={this.onMouseClick.bind(this)} className="level-top ui-corner-all" aria-haspopup={ariaHasPopup} role="menuitem">
+                <a href="#" onClick={this.onMouseClick.bind(this)} className="level-top ui-corner-all" aria-haspopup={this.hasChildren()} role="menuitem">
                     <span>{node.name}</span>
                 </a>
 
-                {node.children.length > 0 &&
+                {node.children && node.children.length > 0 &&
                 <ul className={levelClass + " submenu"} style={submenuStyle}>
                     {node.children.map((childNode) =>
                     <MenuItem node={childNode} key={childNode.id}/>

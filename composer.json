@@ -1,7 +1,7 @@
 {
   "name": "yireo/magento2-react-menu",
   "type": "magento2-module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "OSL-3.0",
   "description": "Module to add a React menu to Magento 2 KO frontend",
   "keywords":[ "composer-installer", "magento"],
