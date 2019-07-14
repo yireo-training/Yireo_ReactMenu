@@ -3,21 +3,33 @@ import React from 'react';
 class MenuItem extends React.Component {
     constructor() {
         super();
+        this.freeze = false;
         this.state = {expanded: false};
     }
 
     onMouseEnter() {
         event.preventDefault();
-        this.setState({expanded: true});
+
+        this.freeze = true;
+        this.setState(() => { return {expanded: true}; }, () => {
+            setTimeout(() => {
+                this.freeze = false;
+            }, 10);
+        });
     }
 
     onMouseLeave() {
         event.preventDefault();
-        this.setState({expanded: false});
+
+        this.setState(() => { return {expanded: false}; });
     }
 
     onMouseClick(event) {
         event.preventDefault();
+
+        if (this.freeze) {
+            return;
+        }
 
         if (this.isExpanded() && this.hasChildren()) {
             return window.location.href = this.props.node.url;
