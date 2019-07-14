@@ -21,9 +21,6 @@ class MenuItem extends React.Component {
 
         let hasChildren = !!this.props.node.children.length;
         let isExpanded = !!this.state.expanded;
-        //let windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        //let windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        //let isMobile = (windowWidth < 300);
 
         if (isExpanded || hasChildren) {
             return window.location.href = this.props.node.url;
@@ -59,13 +56,15 @@ class MenuItem extends React.Component {
             submenuStyle = {display: 'block'};
         }
 
+        let ariaHasPopup = !!(node.children.length > 0);
+
         return (
             <li className={classNames.join(' ')} role="presentation" onMouseLeave={this.onMouseLeave.bind(this)} onMouseOver={this.onMouseOver.bind(this)}>
-                <a href="#" onClick={this.onMouseClick.bind(this)} className="level-top ui-corner-all" aria-haspopup="true" role="menuitem">
+                <a href="#" onClick={this.onMouseClick.bind(this)} className="level-top ui-corner-all" aria-haspopup={ariaHasPopup} role="menuitem">
                     <span>{node.name}</span>
                 </a>
 
-                {node.children &&
+                {node.children.length > 0 &&
                 <ul className={levelClass + " submenu"} style={submenuStyle}>
                     {node.children.map((childNode) =>
                     <MenuItem node={childNode} key={childNode.id}/>
