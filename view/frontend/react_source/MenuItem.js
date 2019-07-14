@@ -6,19 +6,20 @@ class MenuItem extends React.Component {
         this.state = {expanded: false};
     }
 
-    onMouseOver() {
+    onMouseEnter() {
+        event.preventDefault();
         this.setState({expanded: true});
     }
 
     onMouseLeave() {
+        event.preventDefault();
         this.setState({expanded: false});
     }
 
-    onMouseClick() {
+    onMouseClick(event) {
         event.preventDefault();
 
-        let isExpanded = this.state.expanded;
-        if (isExpanded && this.hasChildren()) {
+        if (this.isExpanded() && this.hasChildren()) {
             return window.location.href = this.props.node.url;
         }
 
@@ -51,18 +52,19 @@ class MenuItem extends React.Component {
         return !!(this.props.node.children.length > 0);
     }
 
+    isExpanded() {
+        return this.state.expanded;
+    }
+
     render() {
         let classNames = this.getClassNames();
         let node = this.props.node;
         let levelClass = 'level' + node.level;
-        let submenuStyle = {};
-        if (this.state.expanded) {
-            submenuStyle = {display: 'block'};
-        }
+        let submenuStyle = (this.isExpanded()) ? {display: 'block'} : {};
 
         return (
-            <li className={classNames.join(' ')} role="presentation" onMouseLeave={this.onMouseLeave.bind(this)} onMouseOver={this.onMouseOver.bind(this)}>
-                <a href="#" onClick={this.onMouseClick.bind(this)} className="level-top ui-corner-all" aria-haspopup={this.hasChildren()} role="menuitem">
+            <li className={classNames.join(' ')} role="presentation" onMouseLeave={this.onMouseLeave.bind(this)} onMouseEnter={this.onMouseEnter.bind(this)} onClick={this.onMouseClick.bind(this)}>
+                <a href="#" className="level-top ui-corner-all" aria-haspopup={this.hasChildren()} role="menuitem">
                     <span>{node.name}</span>
                 </a>
 
