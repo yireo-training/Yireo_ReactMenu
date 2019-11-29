@@ -1,95 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-class MenuItem extends React.Component {
-    constructor() {
-        super();
-        this.freeze = false;
-        this.state = {expanded: false};
-    }
+const getClassNames = (node) => {
+    let levelClass = 'level' + (node.level - 2);
+    let classNames = [];
 
-    onMouseEnter() {
+    classNames.push(levelClass);
+    classNames.push(node.position_class);
+    //classNames.push(node.class); // @todo: Removed when migrating to GraphQL
+    classNames.push('category-item');// @todo: Is this ever different?
+    // @todo: Implement classname "first"
+    classNames.push('ui-menu-item'); // @todo: Why is this needed?
+    if (hasChildren(node)) classNames.push('parent');
+    if (node.is_active) classNames.push('active');
+    if (node.has_active) classNames.push('has-active');
+
+    return classNames;
+};
+
+const hasChildren = (node) => {
+    if (!node.children) return false;
+    return (node.children.length > 0);
+};
+
+const MenuItem = (props) => {
+    let freeze = false;
+    const [expanded, setExpanded] = useState(false);
+    const node = props.node;
+
+    const onMouseEnter = () => {
+        event.preventDefault();
+        freeze = true;
+        setExpanded(true);
+    };
+
+    const onMouseLeave = () => {
+        setExpanded(false);
+    };
+
+    const onMouseClick = (event) => {
         event.preventDefault();
 
-        this.freeze = true;
-        this.setState(() => { return {expanded: true}; }, () => {
-            setTimeout(() => {
-                this.freeze = false;
-            }, 10);
-        });
-    }
-
-    onMouseLeave() {
-        event.preventDefault();
-
-        this.setState(() => { return {expanded: false}; });
-    }
-
-    onMouseClick(event) {
-        event.preventDefault();
-
-        if (this.freeze) {
+        if (freeze) {
             return;
         }
 
-        if (this.isExpanded() && this.hasChildren()) {
-            return window.location.href = this.props.node.url;
+        if (expanded && hasChildren(node)) {
+            return window.location.href = node.url;
         }
 
-        if (!this.hasChildren()) {
-            return window.location.href = this.props.node.url;
+        if (!hasChildren(node)) {
+            return window.location.href = node.url;
         }
 
-        this.setState((state) => {return {expanded: !state.expanded}; });
-    }
+        setExpanded(!expanded);
+    };
 
-    getClassNames() {
-        let node = this.props.node;
-        let levelClass = 'level' + node.level;
-        let classNames = [];
+    let classNames = getClassNames(node);
+    let levelClass = 'level' + node.level;
+    let submenuStyle = (expanded) ? {display: 'block'} : {};
 
-        classNames.push(levelClass);
-        classNames.push(node.position_class);
-        classNames.push(node.class);
-        classNames.push('category-item');// @todo: Is this ever different?
-        // @todo: Implement classname "first"
-        classNames.push('ui-menu-item'); // @todo: Why is this needed?
-        if (this.hasChildren()) classNames.push('parent');
-        if (node.is_active) classNames.push('active');
-        if (node.has_active) classNames.push('has-active');
+    return (
+        <li className={classNames.join(' ')} role="presentation" onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} onClick={onMouseClick}>
+            <a href="#" className="level-top ui-corner-all" aria-haspopup={hasChildren(node)} role="menuitem">
+                <span>{node.name}</span>
+            </a>
 
-        return classNames;
-    }
-
-    hasChildren() {
-        return !!(this.props.node.children.length > 0);
-    }
-
-    isExpanded() {
-        return this.state.expanded;
-    }
-
-    render() {
-        let classNames = this.getClassNames();
-        let node = this.props.node;
-        let levelClass = 'level' + node.level;
-        let submenuStyle = (this.isExpanded()) ? {display: 'block'} : {};
-
-        return (
-            <li className={classNames.join(' ')} role="presentation" onMouseLeave={this.onMouseLeave.bind(this)} onMouseEnter={this.onMouseEnter.bind(this)} onClick={this.onMouseClick.bind(this)}>
-                <a href="#" className="level-top ui-corner-all" aria-haspopup={this.hasChildren()} role="menuitem">
-                    <span>{node.name}</span>
-                </a>
-
-                {node.children && node.children.length > 0 &&
-                <ul className={levelClass + " submenu"} style={submenuStyle}>
-                    {node.children.map((childNode) =>
+            {hasChildren(node) &&
+            <ul className={levelClass + " submenu"} style={submenuStyle}>
+                {node.children.map((childNode) =>
                     <MenuItem node={childNode} key={childNode.id}/>
-                    )}
-                </ul>
-                }
-            </li>
-        );
-    }
-}
+                )}
+            </ul>
+            }
+        </li>
+    );
+};
 
 export default MenuItem;
